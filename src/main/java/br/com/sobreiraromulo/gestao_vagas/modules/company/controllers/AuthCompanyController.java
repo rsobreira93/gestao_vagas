@@ -15,13 +15,13 @@ import br.com.sobreiraromulo.gestao_vagas.modules.company.useCases.AuthCompanyUs
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/companies")
 public class AuthCompanyController {
 
   @Autowired
   private AuthCompanyUseCase authCompanyUseCase;
 
-  @PostMapping("/companies")
+  @PostMapping("/auth")
   public ResponseEntity<Object> auth(@Valid @RequestBody AuthCompanyDTO authCompanyDTO) throws AuthenticationException {
     try {
       var result = this.authCompanyUseCase.execute(authCompanyDTO);
