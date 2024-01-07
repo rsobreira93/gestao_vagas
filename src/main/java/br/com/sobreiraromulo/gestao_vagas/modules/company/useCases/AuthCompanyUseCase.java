@@ -2,6 +2,7 @@ package br.com.sobreiraromulo.gestao_vagas.modules.company.useCases;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 
 import javax.security.sasl.AuthenticationException;
 
@@ -15,6 +16,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 
 import br.com.sobreiraromulo.gestao_vagas.modules.company.dto.AuthCompanyDTO;
+import br.com.sobreiraromulo.gestao_vagas.modules.company.dto.AuthCompanyResponseDTO;
 import br.com.sobreiraromulo.gestao_vagas.modules.company.repositories.CompanyRepository;
 
 @Service
@@ -29,7 +31,7 @@ public class AuthCompanyUseCase {
   @Autowired
   private PasswordEncoder passwordEncoder;
 
-  public String execute(AuthCompanyDTO authCompanyDTO) throws AuthenticationException {
+  public AuthCompanyResponseDTO execute(AuthCompanyDTO authCompanyDTO) throws AuthenticationException {
     var company = this.companyRepository
         .findByUsernameOrEmail(authCompanyDTO.getUsername(), authCompanyDTO.getUsername())
         .orElseThrow(() -> {
@@ -43,12 +45,20 @@ public class AuthCompanyUseCase {
     }
 
     Algorithm algorithm = Algorithm.HMAC256(secretKey);
+    var expires_in = Instant.now().plus(Duration.ofHours(2));
+
     var token = JWT.create().withIssuer("javagas")
-        .withExpiresAt(Instant.now().plus(Duration.ofHours(2)))
+        .withExpiresAt(expires_in)
         .withSubject(company.getId().toString())
+        .withClaim("roles", Arrays.asList("COMPANY"))
         .sign(algorithm);
 
-    return token;
+    var companyResponse = AuthCompanyResponseDTO.builder()
+        .access_token(token)
+        .expires_in(expires_in.toEpochMilli())
+        .build();
+
+    return companyResponse;
   }
 
 }
