@@ -30,6 +30,6 @@ public class TestUtils {
         .withClaim("roles", Arrays.asList("COMPANY"))
         .sign(algorithm);
 
-    return "Bearer" + token;
+    return "Bearer " + token;
   }
 }

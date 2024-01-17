@@ -1,5 +1,7 @@
 package br.com.sobreiraromulo.gestao_vagas.modules.company.controllers;
 
+import java.util.UUID;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,12 +61,29 @@ public class CreateJobControllerTest {
         .level("LEVEL_TEST")
         .build();
 
-    var result = mvc.perform(MockMvcRequestBuilders.post("/companies/jobs")
+    var result = mvc.perform(MockMvcRequestBuilders.post("/companies/jobs/")
         .contentType(MediaType.APPLICATION_JSON)
         .content(TestUtils.objectToJson(createdJobDTO))
         .header("Authorization", TestUtils.generateToken(company.getId(), "JAVAGAS_@123#")))
         .andExpect(MockMvcResultMatchers.status().isOk());
 
     System.out.println(result);
+  }
+
+  @Test
+  public void should_not_be_able_to_create_a_new_job_if_company_not_found() throws Exception {
+    var createdJobDTO = CreateJobDTO.builder()
+        .benefits("BENEFITS_TEST")
+        .description("DESCRIPTION_TEST")
+        .level("LEVEL_TEST")
+        .build();
+
+    var token = TestUtils.generateToken(UUID.randomUUID(), "JAVAGAS_@123#");
+
+    mvc.perform(MockMvcRequestBuilders.post("/companies/jobs")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(TestUtils.objectToJson(createdJobDTO))
+        .header("Authorization", token))
+        .andExpect(MockMvcResultMatchers.status().isBadRequest());
   }
 }
